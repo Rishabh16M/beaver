@@ -1,0 +1,27 @@
+# ─── Dependencies ───────────────────────────────────────────
+node_modules/
+
+# ─── Environment Variables ───────────────────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env.test
+*.env
+
+# ─── Logs ────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ─── OS / Editor ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ─── Misc ────────────────────────────────────────────────────
+coverage/
+check_railway.js

@@ -1,0 +1,21 @@
+{
+  "name": "beaver-workspace-monorepo",
+  "version": "1.0.0",
+  "description": "Collaborative Office Workspace Platform using Microservices Architecture",
+  "scripts": {
+    "install-all": "npm install && npm run install-services && npm run install-client",
+    "install-services": "npm install --prefix services/auth-service && npm install --prefix services/workspace-service && npm install --prefix services/chat-service && npm install --prefix services/audit-service && npm install --prefix services/ai-service && npm install --prefix services/notification-service",
+    "install-client": "npm install --prefix client",
+    "dev": "concurrently --kill-others-on-fail \"npm run dev-auth\" \"npm run dev-workspace\" \"npm run dev-chat\" \"npm run dev-audit\" \"npm run dev-ai\" \"npm run dev-notification\" \"npm run dev-client\"",
+    "dev-auth": "npm run dev --prefix services/auth-service",
+    "dev-workspace": "npm run dev --prefix services/workspace-service",
+    "dev-chat": "npm run dev --prefix services/chat-service",
+    "dev-audit": "npm run dev --prefix services/audit-service",
+    "dev-ai": "npm run dev --prefix services/ai-service",
+    "dev-notification": "npm run dev --prefix services/notification-service",
+    "dev-client": "npm run dev --prefix client"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

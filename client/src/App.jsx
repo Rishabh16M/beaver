@@ -6,11 +6,13 @@ import {
   Image, File, AlertCircle, RefreshCw, Bell 
 } from 'lucide-react';
 
-// API Gateways Configuration
-const AUTH_URL = 'http://localhost:5001/api/auth';
-const WORKSPACE_URL = 'http://localhost:5002/api/workspaces';
-const CHAT_URL = 'http://localhost:5003';
-const AUDIT_URL = 'http://localhost:5004/api/audits';
+// API Gateways Configuration (set in client/.env for local, Vercel dashboard for production)
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || 'http://localhost:5001/api/auth';
+const WORKSPACE_URL = import.meta.env.VITE_WORKSPACE_URL || 'http://localhost:5002/api/workspaces';
+const CHAT_URL = import.meta.env.VITE_CHAT_URL || 'http://localhost:5003';
+const AUDIT_URL = import.meta.env.VITE_AUDIT_URL || 'http://localhost:5004/api/audits';
+const NOTIFICATION_URL = import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:5006';
+const AI_URL = import.meta.env.VITE_AI_URL || 'http://localhost:5005/api/ai';
 
 export default function App() {
   // Session & Authentication
@@ -334,7 +336,7 @@ export default function App() {
   // Single-click trigger for email reminder sync via Notification Service
   const handleEmailDigestRequest = async () => {
     try {
-      const res = await fetch('http://localhost:5006/api/notifications/remind-now', {
+      const res = await fetch(`${NOTIFICATION_URL}/api/notifications/remind-now`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -848,7 +850,7 @@ export default function App() {
     setShowReportModal(true);
     setAiReport('');
     try {
-      const res = await fetch('http://localhost:5005/api/ai/report', {
+      const res = await fetch(`${AI_URL}/report`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

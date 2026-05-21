@@ -9,7 +9,15 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5006;
 
-app.use(cors());
+const ALLOWED_ORIGINS = [
+  'https://beaver-nekh.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || ALLOWED_ORIGINS.includes(origin)),
+  credentials: true
+}));
 app.use(express.json());
 
 // Set up Logs folder

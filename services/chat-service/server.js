@@ -15,7 +15,15 @@ const PORT = process.env.PORT || 5003;
 const JWT_SECRET = process.env.JWT_SECRET || 'beaver_jwt_secret_key_99';
 const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'http://localhost:5005/api/ai/chat';
 
-app.use(cors());
+const ALLOWED_ORIGINS = [
+  'https://beaver-nekh.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || ALLOWED_ORIGINS.includes(origin)),
+  credentials: true
+}));
 app.use(express.json());
 
 // Initialize DB
@@ -24,8 +32,9 @@ connectDB();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
+    origin: ALLOWED_ORIGINS,
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
 

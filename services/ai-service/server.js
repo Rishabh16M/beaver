@@ -5,7 +5,15 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5005;
 
-app.use(cors());
+const ALLOWED_ORIGINS = [
+  'https://beaver-nekh.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+app.use(cors({
+  origin: (origin, cb) => cb(null, !origin || ALLOWED_ORIGINS.includes(origin)),
+  credentials: true
+}));
 app.use(express.json());
 
 // ---------------- DYNAMIC MOCK ENGINE FOR COMPACT & STUNNING RESPONSES ----------------

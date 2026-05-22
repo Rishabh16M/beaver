@@ -2,16 +2,18 @@ const { Sequelize, DataTypes } = require('sequelize');
 
 let sequelize;
 
+const MYSQL_URL = process.env.MYSQL_URL || process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL;
+
 const MYSQL_HOST = process.env.MYSQL_HOST || process.env.MYSQLHOST || 'localhost';
 const MYSQL_PORT = process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306;
 const MYSQL_USER = process.env.MYSQL_USER || process.env.MYSQLUSER || 'root';
-const MYSQL_PASS = process.env.MYSQL_PASS || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '';
+const MYSQL_PASS = process.env.MYSQL_PASS || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || process.env.MYSQL_ROOT_PASSWORD || '';
 const MYSQL_DB = process.env.MYSQL_DB || process.env.MYSQLDATABASE || process.env.MYSQL_DB_NAME || 'beaver_audits';
 
 async function initDB() {
   try {
-    // If specifically requested to use SQLite (or no host configured and not in production)
-    if (MYSQL_HOST === 'sqlite' || (!process.env.MYSQL_HOST && !process.env.MYSQLHOST && process.env.NODE_ENV !== 'production')) {
+    // If specifically requested to use SQLite (or no connection details and not in production)
+    if (MYSQL_HOST === 'sqlite' || (!MYSQL_URL && !process.env.MYSQL_HOST && !process.env.MYSQLHOST && process.env.NODE_ENV !== 'production')) {
       console.log('📦 [Audit-Service] Using SQLite database for local development/fallback.');
       sequelize = new Sequelize({
         dialect: 'sqlite',
@@ -22,15 +24,27 @@ async function initDB() {
       return;
     }
 
-    sequelize = new Sequelize(MYSQL_DB, MYSQL_USER, MYSQL_PASS, {
-      host: MYSQL_HOST,
-      port: MYSQL_PORT,
-      dialect: 'mysql',
-      logging: false,
-      dialectOptions: {
-        connectTimeout: 10000
-      }
-    });
+    if (MYSQL_URL) {
+      console.log('🔗 [Audit-Service] Connecting to MySQL using connection URL...');
+      sequelize = new Sequelize(MYSQL_URL, {
+        dialect: 'mysql',
+        logging: false,
+        dialectOptions: {
+          connectTimeout: 10000
+        }
+      });
+    } else {
+      console.log(`🔗 [Audit-Service] Connecting to MySQL at ${MYSQL_HOST}:${MYSQL_PORT}...`);
+      sequelize = new Sequelize(MYSQL_DB, MYSQL_USER, MYSQL_PASS, {
+        host: MYSQL_HOST,
+        port: MYSQL_PORT,
+        dialect: 'mysql',
+        logging: false,
+        dialectOptions: {
+          connectTimeout: 10000
+        }
+      });
+    }
 
     await sequelize.authenticate();
     console.log('✅ [Audit-Service] Connected to MySQL database.');

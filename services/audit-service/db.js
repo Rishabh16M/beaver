@@ -2,28 +2,57 @@ const { Sequelize, DataTypes } = require('sequelize');
 
 let sequelize;
 
-const MYSQL_HOST = process.env.MYSQL_HOST || 'localhost';
-const MYSQL_PORT = process.env.MYSQL_PORT || 3306;
-const MYSQL_USER = process.env.MYSQL_USER || 'root';
-const MYSQL_PASS = process.env.MYSQL_PASS || '';
-const MYSQL_DB = process.env.MYSQL_DB || 'beaver_audits';
+const MYSQL_HOST = process.env.MYSQL_HOST || process.env.MYSQLHOST || 'localhost';
+const MYSQL_PORT = process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306;
+const MYSQL_USER = process.env.MYSQL_USER || process.env.MYSQLUSER || 'root';
+const MYSQL_PASS = process.env.MYSQL_PASS || process.env.MYSQLPASSWORD || process.env.MYSQL_PASSWORD || '';
+const MYSQL_DB = process.env.MYSQL_DB || process.env.MYSQLDATABASE || process.env.MYSQL_DB_NAME || 'beaver_audits';
 
 async function initDB() {
   try {
+    // If specifically requested to use SQLite (or no host configured and not in production)
+    if (MYSQL_HOST === 'sqlite' || (!process.env.MYSQL_HOST && !process.env.MYSQLHOST && process.env.NODE_ENV !== 'production')) {
+      console.log('📦 [Audit-Service] Using SQLite database for local development/fallback.');
+      sequelize = new Sequelize({
+        dialect: 'sqlite',
+        storage: './beaver_audits.sqlite',
+        logging: false
+      });
+      await sequelize.authenticate();
+      return;
+    }
+
     sequelize = new Sequelize(MYSQL_DB, MYSQL_USER, MYSQL_PASS, {
       host: MYSQL_HOST,
       port: MYSQL_PORT,
       dialect: 'mysql',
-      logging: false
+      logging: false,
+      dialectOptions: {
+        connectTimeout: 10000
+      }
     });
 
     await sequelize.authenticate();
     console.log('✅ [Audit-Service] Connected to MySQL database.');
   } catch (error) {
     console.error('❌ [Audit-Service] MySQL connection failed:', error.message);
-    throw error;
+    
+    // Automatically fall back to SQLite in non-production environments to avoid startup crashes
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('⚠️ [Audit-Service] Falling back to local SQLite database...');
+      sequelize = new Sequelize({
+        dialect: 'sqlite',
+        storage: './beaver_audits.sqlite',
+        logging: false
+      });
+      await sequelize.authenticate();
+      console.log('✅ [Audit-Service] Connected to fallback SQLite database.');
+    } else {
+      throw error;
+    }
   }
 }
+
 
 // Define the AuditLog model
 const AuditLog = {

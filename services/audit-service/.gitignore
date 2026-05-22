@@ -25,3 +25,6 @@ Thumbs.db
 # ─── Misc ────────────────────────────────────────────────────
 coverage/
 check_railway.js
+*.sqlite
+beaver_audits.sqlite
+

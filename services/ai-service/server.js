@@ -4,6 +4,8 @@ const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+const WORKSPACE_SERVICE_URL = process.env.WORKSPACE_SERVICE_URL || 'http://localhost:5002';
+const AUDIT_SERVICE_URL = process.env.AUDIT_SERVICE_URL || 'http://localhost:5004';
 
 const ALLOWED_ORIGINS = [
   'https://beaver-nekh.vercel.app',
@@ -205,7 +207,7 @@ app.post('/api/ai/chat', async (req, res) => {
     let auditLogs = null;
 
     try {
-      const workspaceRes = await fetch(`http://localhost:5002/api/internal/workspaces/${code}`);
+      const workspaceRes = await fetch(`${WORKSPACE_SERVICE_URL}/api/internal/workspaces/${code}`);
       if (workspaceRes.ok) {
         workspaceData = await workspaceRes.json();
       } else {
@@ -216,7 +218,7 @@ app.post('/api/ai/chat', async (req, res) => {
     }
 
     try {
-      const auditRes = await fetch(`http://localhost:5004/api/internal/audits/${code}`);
+      const auditRes = await fetch(`${AUDIT_SERVICE_URL}/api/internal/audits/${code}`);
       if (auditRes.ok) {
         auditLogs = await auditRes.json();
       } else {
